@@ -49,4 +49,19 @@ return array(
         ),
     ),
 */
+
+    'view_helpers' => array(
+        'invokables' => [
+            'viewFilesPath' => 'Templates\View\Helper\ViewFilesPath',
+        ],
+    ),
+
+    'template_config' => array(
+        'space' => [
+                'view'  => 'default',
+                'files' => 'default',
+            ]
+    ),
+
+
 );

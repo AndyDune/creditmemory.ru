@@ -15,7 +15,9 @@ use Zend\Mvc\MvcEvent;
 
 class Module implements AutoloaderProviderInterface
 {
-    protected $_space = 'default';
+    protected $_space          = 'default';
+    protected $_spaceViewFiles = 'default';
+
     public function getAutoloaderConfig()
     {
         return array(
@@ -51,12 +53,19 @@ class Module implements AutoloaderProviderInterface
 
         //$app->getEventManager()->attach(MvcEvent::EVENT_ROUTE, array($this, 'onRoute'), 1);
 
-
-        $e->getApplication()->getEventManager()->getSharedManager()->attach('Zend\Mvc\Controller\AbstractController', 'dispatch', function($e) {
+        $object = $this;
+        $e->getApplication()->getEventManager()->getSharedManager()->attach('Zend\Mvc\Controller\AbstractController', 'dispatch', function($e) use ($object) {
             $controller      = $e->getTarget();
             $controllerClass = get_class($controller);
             $moduleNamespace = substr($controllerClass, 0, strpos($controllerClass, '\\'));
             $config          = $e->getApplication()->getServiceManager()->get('config');
+
+            if (isset($config['template_config']['space']['view']))
+            {
+                $object->_space = $config['template_config']['space']['view'];
+            }
+
+
             if (isset($config['module_layouts'][$moduleNamespace]))
             {
                 $controller->layout($config['module_layouts'][$moduleNamespace]);
@@ -66,17 +75,6 @@ class Module implements AutoloaderProviderInterface
 
         return;
         // Для Аякса специпальный шаблон для всего
-        $e->getApplication()->getEventManager()->getSharedManager()->attach('Zend\Mvc\Controller\AbstractController', 'dispatch', function($e)
-        {
-            $controller      = $e->getTarget();
-            $request = $controller->getRequest();
-            if ($request->isXmlHttpRequest())
-            {
-                $layout = $controller->layout();
-                //$layout->setTemplate(__DIR__ . '/view/default/layout/json');
-                $layout->setTemplate('/default/layout/json');
-            }
-        }, 101);
 
     }
 
@@ -90,9 +88,10 @@ class Module implements AutoloaderProviderInterface
     public function setLayout($e)
     {
         $viewTemplatePathStack = $e->getApplication()->getServiceManager()->get('ViewTemplatePathStack');
-        $viewTemplatePathStack->addPath(__DIR__ . '/view/default/');
+        //$viewTemplatePathStack->addPath(__DIR__ . '/view/default/'); // Для этого модуля свои шаблоны
 
         $controllerObject = $e->getTarget();
+
         $request = $controllerObject->getRequest();
         if ($request->isXmlHttpRequest())
         {
@@ -109,7 +108,7 @@ class Module implements AutoloaderProviderInterface
             $controllerClass = get_class($controllerObject);
             $moduleNamespace = substr($controllerClass, 0, strpos($controllerClass, '\\'));
 
-            $viewTemplatePathStack->addPath(__DIR__ . '/view-modules/default/' . $moduleNamespace  . '/');
+            $viewTemplatePathStack->addPath(__DIR__ . '/view-modules/' . $this->_space . '/' . $moduleNamespace  . '/');
             //print_r($viewTemplatePathStack);
         }
 
