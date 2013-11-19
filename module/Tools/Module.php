@@ -45,7 +45,6 @@ class Module implements AutoloaderProviderInterface
         $moduleRouteListener->attach($eventManager);
 
 
-
         $app = $e->getParam('application');
 
         //$app->getEventManager()->attach(MvcEvent::EVENT_ROUTE, array($this, 'onRoute'), 1);
@@ -53,7 +52,15 @@ class Module implements AutoloaderProviderInterface
         $uri  = $e->getRequest()->getUri();
         $path = $uri->getPath();
 
+        /** @var \Tools\Service\Structure $structure */
+        $structure   = $e->getApplication()->getServiceManager()->get('structure');
+
         $structureRoot = __DIR__ . '/../../data/structure/www';
+
+        $structure->setRoot($structureRoot);
+        $structure->setPath($path);
+
+        $structure->run();
 
         //$structureData = $this->_buildStructureData($path, $structureRoot, $e);
 
@@ -80,7 +87,6 @@ class Module implements AutoloaderProviderInterface
             );
             $e->getRouter()->setRoutes($rou);
         }
-
 
         return;
     }

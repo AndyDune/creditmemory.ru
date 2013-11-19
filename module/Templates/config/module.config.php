@@ -53,6 +53,7 @@ return array(
     'view_helpers' => array(
         'invokables' => [
             'viewFilesPath' => 'Templates\View\Helper\ViewFilesPath',
+            'headTitle' => 'Templates\View\Helper\HeadTitle',
         ],
     ),
 

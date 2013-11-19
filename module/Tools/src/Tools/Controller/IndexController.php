@@ -15,12 +15,17 @@ class IndexController extends AbstractActionController
 {
     public function indexAction()
     {
+
+
         return $this->layout()->getVariables();
         return array();
     }
 
     public function staticPageAction()
     {
+        $sm = $this->getServiceLocator();
+        $structure = $sm->get('structure');
+
         return $this->layout()->getVariables();
     }
 }
