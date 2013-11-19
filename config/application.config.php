@@ -5,7 +5,7 @@ return array(
         //'Application',
         'CreditMemory',
         'Templates',
-        'Tools',
+        'SiteStructure',
         //'WebinoImageThumb',
     ),
 
