@@ -42,13 +42,13 @@ return array(
             ),
         ),
     ),
-/*
+
     'view_manager' => array(
         'template_path_stack' => array(
-            'Templates' => __DIR__ . '/../view',
+             __DIR__ . '/../view/default',
         ),
-    ),
-*/
+   ),
+
 
     'view_helpers' => array(
         'invokables' => [

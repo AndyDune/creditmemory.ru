@@ -11,7 +11,7 @@ return array(
             'SiteStructure' => 'SiteStructure\Service\Structure',
         ),
         'aliases' => array(
-            'site_structure' => 'SiteStructure',
+            //'SiteStructure' => 'site_structure',
         ),
     ),
 

@@ -4,8 +4,8 @@ return array(
     'modules' => array(
         //'Application',
         'CreditMemory',
-        'Templates',
         'SiteStructure',
+        'Templates',
         //'WebinoImageThumb',
     ),
 
