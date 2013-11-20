@@ -9,6 +9,8 @@
 
 namespace SiteStructure;
 
+use SiteStructure\View\Helper\HeadTitle;
+
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
@@ -55,7 +57,7 @@ class Module implements AutoloaderProviderInterface
         /** @var \Tools\Service\Structure $structure */
         $structure   = $e->getApplication()->getServiceManager()->get('SiteStructure');
 
-        $structureRoot = __DIR__ . '/../../data/structure/www';
+        $structureRoot = __DIR__ . '/../../data/structure';
 
         $structure->setRoot($structureRoot);
         $structure->setPath($path);
@@ -92,37 +94,19 @@ class Module implements AutoloaderProviderInterface
     }
 
 
-    protected function _buildStructureData($path, $root, MvcEvent $e)
+    public function getViewHelperConfig()
     {
-        $fileToLook = '/config.php';
-        $result = [];
-        $currentExistKey = '/';
-        if (is_file($root . $fileToLook))
-        {
-            $result['/'] = include($root . $fileToLook);
-        }
-        $parts = explode('/', $path);
-        $accumulatorPath = '';
-        foreach($parts as $value)
-        {
-            $value = trim($value);
-            if (!$value)
-                continue;
-            $accumulatorPath .= '/' . $value;
-            $file = $root . $accumulatorPath . $fileToLook;
-            if (is_file($file))
-            {
-                $currentExistKey = $accumulatorPath;
-                $result[$accumulatorPath] = include($file);
-            }
-            else
-            {
-
-                break;
-            }
-
-        }
+        return array(
+            'factories' => array(
+                // the array key here is the name you will call the view helper by in your view scripts
+                'headTitle' => function($sm) {
+                        $locator = $sm->getServiceLocator(); // $sm is the view helper manager, so we need to fetch the main service manager
+                        $object = new HeadTitle($locator->get('SiteStructure'));
+                        $object->setDefaultAttachOrder(\Zend\View\Helper\Placeholder\Container\AbstractContainer::PREPEND);
+                        return $object;
+                    },
+            ),
+        );
     }
-
 
 }

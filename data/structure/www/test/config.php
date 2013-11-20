@@ -1,8 +1,7 @@
 <?php
 return [
-    'static_page' => true,
-    'routers'     => true,
-    'structure_title' => 'Тестовая статичная страница',
-    'structure_description' => '',
-    'structure_keywords' => 'Тестовая статичная страница',
+    'routers'     => false,
+    'title' => 'Помни о кредите',
+    'description' => 'Сайт поможет вовремя отдавать кредит',
+    'keywords' => 'Тестовая статичная страница',
 ];

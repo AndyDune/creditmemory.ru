@@ -17,7 +17,7 @@ return array(
 
     'view_helpers' => array(
         'invokables' => [
-            'headTitle' => 'SiteStructure\View\Helper\HeadTitle',
+      //      'headTitle' => 'SiteStructure\View\Helper\HeadTitle',
         ],
     ),
 
