@@ -47,6 +47,9 @@ class Module implements AutoloaderProviderInterface
         $moduleRouteListener->attach($eventManager);
 
 
+        //$viewTemplatePathStack = $e->getApplication()->getServiceManager()->get('ViewTemplatePathStack');
+        //print_r($viewTemplatePathStack);
+
 
         $app = $e->getParam('application');
         $app->getEventManager()->attach('dispatch', array($this, 'setLayout'));
