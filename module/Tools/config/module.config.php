@@ -6,15 +6,6 @@ return array(
         ),
     ),
 
-    'service_manager' => array(
-        'invokables' => array(
-            'Structure' => 'Tools\Service\Structure',
-        ),
-        'aliases' => array(
-            //'structure' => 'Structure',
-        ),
-    ),
-
 /*
     'di' => array(
         'services' => array(

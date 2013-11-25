@@ -24,6 +24,7 @@ class Structure
      */
     protected $configForSite = null;
 
+
     /**
      * Вложенный массив с конфигами для структуры, отраженной в ссылке.
      * Актуален в раках текущего домена.
@@ -31,6 +32,9 @@ class Structure
      */
     protected $configForSubDomain = null;
 
+
+    protected $pathStringInStructure = '';
+    protected $pathArrayInStructure  = [];
 
     /**
      * @param $path
@@ -51,6 +55,27 @@ class Structure
         $this->path = $path;
         return $this;
     }
+
+    public function isStatic()
+    {
+        return false;
+    }
+
+    public function getActiveParams()
+    {
+        return [];
+    }
+
+    public function getRoutes()
+    {
+        return null;
+    }
+
+    public function getPathInStructure()
+    {
+        return $this->pathStringInStructure;
+    }
+
 
     public function getStructureSiteConfig($key = null)
     {
@@ -136,6 +161,9 @@ class Structure
             }
 
         }
+
+        $this->pathStringInStructure = $currentExistKey;
+        $this->pathArrayInStructure = $pathPartsInStructure;
 
         if (count($result))
             $this->configForSubDomain = $result;

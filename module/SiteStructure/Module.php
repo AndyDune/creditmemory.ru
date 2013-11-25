@@ -54,7 +54,7 @@ class Module implements AutoloaderProviderInterface
         $uri  = $e->getRequest()->getUri();
         $path = $uri->getPath();
 
-        /** @var \Tools\Service\Structure $structure */
+        /** @var \SiteStructure\Service\Structure $structure */
         $structure   = $e->getApplication()->getServiceManager()->get('SiteStructure');
 
         $structureRoot = __DIR__ . '/../../data/structure';
@@ -67,19 +67,20 @@ class Module implements AutoloaderProviderInterface
         //$structureData = $this->_buildStructureData($path, $structureRoot, $e);
 
         $pathFull = __DIR__ . '/../../data/structure/www' . rtrim($path, ' /') . '/config.php';
-        if (is_file($pathFull))
+        if ($structure->isStatic())
         {
-                $array = include($pathFull);
+
+                //$array = include($pathFull);
                 //$e->getRequest()->set
                 //print_r($e->getViewModel());
-                $e->getViewModel()->setVariables($array, true);
+                $e->getViewModel()->setVariables($structure->getActiveParams(), true);
 
 
                 $rou = array(
-                'home' => array(
+                'static-page' => array(
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => array(
-                    'route'    => $path,
+                    'route'    => $structure->getPathInStructure(),
                     'defaults' => array(
                         'controller' => 'SiteStructure\Controller\Index',
                         'action'     => 'static-page',
@@ -87,7 +88,11 @@ class Module implements AutoloaderProviderInterface
                 ),
             )
             );
-            $e->getRouter()->setRoutes($rou);
+            $e->getRouter()->addRoutes($rou);
+        }
+        else if ($structure->getRoutes())
+        {
+
         }
 
         return;

@@ -4,6 +4,11 @@ return array(
     'modules' => array(
         //'Application',
         'CreditMemory',
+        'Tools',
+
+        'ZfcBase',
+        'ZfcUser',
+
         'SiteStructure',
         'Templates',
         //'WebinoImageThumb',

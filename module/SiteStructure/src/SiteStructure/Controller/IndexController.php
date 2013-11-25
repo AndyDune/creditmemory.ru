@@ -10,22 +10,45 @@
 namespace SiteStructure\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Session\Container;
 
 class IndexController extends AbstractActionController
 {
+    protected $session = null;
+
     public function indexAction()
     {
-
-
         return $this->layout()->getVariables();
         return array();
     }
 
     public function staticPageAction()
     {
+
+        //phpinfo();
+        /** @var \Zend\ServiceManager\ServiceManager $sm */
         $sm = $this->getServiceLocator();
+
+        $session = $this->getSession();
+        $session->number = 12;
+
+        //echo $session->number;
+
         $structure = $sm->get('site_structure');
 
         return $this->layout()->getVariables();
     }
+
+
+    /**
+     * @return Container
+     */
+    public function getSession()
+    {
+        if ($this->session === null) {
+            $this->session = new Container('my_session');
+        }
+        return $this->session;
+    }
+
 }

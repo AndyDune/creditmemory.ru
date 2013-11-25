@@ -13,6 +13,12 @@ use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 
+use Zend\Cache\StorageFactory;
+use Zend\Session\SaveHandler\Cache;
+use Zend\Session\SessionManager;
+use Zend\Session\Container;
+
+
 class Module implements AutoloaderProviderInterface
 {
     protected $_space = 'default';
@@ -38,97 +44,92 @@ class Module implements AutoloaderProviderInterface
 
     public function onBootstrap(MvcEvent $e)
     {
-        // You may not need to do this if you're doing it elsewhere in your
-        // application
         $eventManager        = $e->getApplication()->getEventManager();
+        $serviceManager      = $e->getApplication()->getServiceManager();
+
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
 
-
-        $app = $e->getParam('application');
-
-        //$app->getEventManager()->attach(MvcEvent::EVENT_ROUTE, array($this, 'onRoute'), 1);
-
-        $uri  = $e->getRequest()->getUri();
-        $path = $uri->getPath();
-
-        /** @var \Tools\Service\Structure $structure */
-        $structure   = $e->getApplication()->getServiceManager()->get('structure');
-
-        $structureRoot = __DIR__ . '/../../data/structure/www';
-
-        $structure->setRoot($structureRoot);
-        $structure->setPath($path);
-
-        $structure->run();
-
-        //$structureData = $this->_buildStructureData($path, $structureRoot, $e);
-
-        $pathFull = __DIR__ . '/../../data/structure/www' . rtrim($path, ' /') . '/config.php';
-        if (is_file($pathFull))
-        {
-                $array = include($pathFull);
-                //$e->getRequest()->set
-                //print_r($e->getViewModel());
-                $e->getViewModel()->setVariables($array, true);
-
-
-                $rou = array(
-                'home' => array(
-                'type' => 'Zend\Mvc\Router\Http\Literal',
-                'options' => array(
-                    'route'    => $path,
-                    'defaults' => array(
-                        'controller' => 'Tools\Controller\Index',
-                        'action'     => 'static-page',
-                    ),
-                ),
-            )
-            );
-            $e->getRouter()->setRoutes($rou);
-        }
-
-        return;
+        $this->bootstrapSession($e);
     }
 
 
-    protected function _buildStructureData($path, $root, MvcEvent $e)
+    public function bootstrapSession($e)
     {
-        $fileToLook = '/config.php';
-        $result = [];
-        $currentExistKey = '/';
-        if (is_file($root . $fileToLook))
-        {
-            $result['/'] = include($root . $fileToLook);
-        }
-        $parts = explode('/', $path);
-        $accumulatorPath = '';
-        foreach($parts as $value)
-        {
-            $value = trim($value);
-            if (!$value)
-                continue;
-            $accumulatorPath .= '/' . $value;
-            $file = $root . $accumulatorPath . $fileToLook;
-            if (is_file($file))
-            {
-                $currentExistKey = $accumulatorPath;
-                $result[$accumulatorPath] = include($file);
-            }
-            else
-            {
+        $session = $e->getApplication()
+            ->getServiceManager()
+            ->get('Zend\Session\SessionManager');
+        $session->start();
 
-                break;
-            }
-
+        $container = new Container('initialized');
+        if (!isset($container->init)) {
+            $session->regenerateId(true);
+            $container->init = 1;
         }
     }
 
-    public function onRoute($e)
+
+    public function getServiceConfig()
     {
-        $matches = $e->getRouteMatch();
-        $matches->setParam('controller', 'Templates\Controller\Index');
-        $matches->setParam('action', 'index');
+        return array(
+            'factories' => array(
+                'Zend\Session\SessionManager' => function ($sm) {
+                        $config = $sm->get('config');
+                        if (isset($config['session'])) {
+                            $session = $config['session'];
+
+                            $sessionConfig = null;
+                            if (isset($session['config'])) {
+                                $class = isset($session['config']['class'])  ? $session['config']['class'] : 'Zend\Session\Config\SessionConfig';
+                                $options = isset($session['config']['options']) ? $session['config']['options'] : array();
+                                $sessionConfig = new $class();
+                                $sessionConfig->setOptions($options);
+                            }
+
+                            $sessionStorage = null;
+                            if (isset($session['storage'])) {
+                                $class = $session['storage'];
+                                $sessionStorage = new $class();
+                            }
+
+                            $sessionSaveHandler = null;
+                            if (isset($session['save_handler'])) {
+                                // class should be fetched from service manager since it will require constructor arguments
+                                $sessionSaveHandler = $sm->get($session['save_handler']);
+                            }
+
+                            $sessionManager = new SessionManager($sessionConfig, $sessionStorage, $sessionSaveHandler);
+
+                            if (isset($session['validators'])) {
+                                $chain = $sessionManager->getValidatorChain();
+                                foreach ($session['validators'] as $validator) {
+                                    $validator = new $validator();
+                                    $chain->attach('session.validate', array($validator, 'isValid'));
+
+                                }
+                            }
+                        } else {
+                            $sessionManager = new SessionManager();
+                        }
+
+/*
+                        $cache = StorageFactory::factory(array(
+                            'adapter' => [
+                                'name' => 'apc',
+                            ],
+                            'options' => [
+                            ],
+                        ));
+                        $saveHandler = new Cache($cache);
+                        $sessionManager->setSaveHandler($saveHandler);
+*/
+
+
+                        Container::setDefaultManager($sessionManager);
+                        return $sessionManager;
+                    },
+            ),
+        );
     }
 
 }

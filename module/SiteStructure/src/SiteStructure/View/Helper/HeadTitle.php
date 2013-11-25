@@ -29,6 +29,7 @@ class HeadTitle extends ZendHeadTitle
         {
             foreach ($data as $run)
             {
+                if (!$run) continue;
                 if (array_key_exists('title', $run) and $run['title'])
                     $this->prepend($run['title']);
             }
