@@ -8,6 +8,7 @@ return array(
 
         'ZfcBase',
         'ZfcUser',
+        'ZfcAdmin',
 
         'SiteStructure',
         'Templates',
