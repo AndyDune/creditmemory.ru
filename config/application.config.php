@@ -3,12 +3,15 @@ return array(
     // This should be an array of module namespaces used in the application.
     'modules' => array(
         //'Application',
-        'CreditMemory',
         'Tools',
+        'CreditMemory',
 
         'ZfcBase',
         'ZfcUser',
         'ZfcAdmin',
+
+        'Users',
+        'Admin',
 
         'SiteStructure',
         'Templates',
